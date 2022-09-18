@@ -1,4 +1,7 @@
+import { useEffect, useRef } from "react";
 import { StatusBar } from "react-native";
+import * as Notifications from 'expo-notifications';
+import { Subscription } from 'expo-modules-core';
 import {
   useFonts,
   Inter_400Regular,
@@ -11,7 +14,40 @@ import { Routes } from "./src/routes";
 import { Loading } from "./src/components/Loading";
 import { Background } from "./src/components/Background";
 
+import './src/services/notificationConfig';
+import { getPushNotificationToken } from './src/services/getPushNotificationToken'
+
 export default function App() {
+  const getNotificationListener = useRef<Subscription>();
+  const responseNotificationListener = useRef<Subscription>();
+  
+  useEffect(() => {
+    getPushNotificationToken();
+    // responseNotificationListener.current = getPushNotificationToken();
+  
+    // return () => {
+    //   getNotificationListener.current?.remove();
+    //   responseNotificationListener.current?.remove();
+    // }
+  }, [])
+
+  useEffect(() => {
+    getNotificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log(notification);
+    });
+
+    responseNotificationListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      if (getNotificationListener.current && responseNotificationListener.current) {
+        Notifications.removeNotificationSubscription(getNotificationListener.current);
+        Notifications.removeNotificationSubscription(responseNotificationListener.current);
+      }
+    }
+  }, [])
+
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_600SemiBold,

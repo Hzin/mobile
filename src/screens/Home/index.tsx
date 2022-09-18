@@ -25,6 +25,7 @@ export function Home() {
       .then(data => setGames(data));
   }, [])
 
+  //TODO: Notificações
   return (
     <Background>
       <SafeAreaView style={styles.container}>
